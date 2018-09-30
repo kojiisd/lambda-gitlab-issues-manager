@@ -1,0 +1,17 @@
+service: lambda-gitlab-issues-manager
+
+provider:
+  name: aws
+  runtime: python3.6
+  region: us-east-1
+
+  environment:
+    PERSONAL_ACCESS_TOKEN: XXXXXX      # Required to set
+    TARGET_URL: XXXXXX               # Required to set
+    MILE_STONE: XXXXXX
+
+functions:
+  issues_manager:
+    handler: handler.issues_manager
+    memorySize: 128
+    timeout: 30
