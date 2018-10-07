@@ -20,6 +20,12 @@ def issues_manager(event, context):
         # ERROR handling
         print("Please configure MILE_STONE.")
         return
+    elif 'STATUS_LIST' in os.environ['STATUS_LIST'] or os.environ['STATUS_LIST'] is None:
+        # ERROR handling
+        print("Please configure STATUS_LIST.")
+        return
+    
+    status_list = os.environ['STATUS_LIST']
 
     headers = {
        "Private-Token": os.environ['PERSONAL_ACCESS_TOKEN'],
@@ -29,40 +35,42 @@ def issues_manager(event, context):
     page = 1
     prev_num = 0
 
-    #　前回ループと今回ループの最初のIDが同じかどうかの確認
+    #　Check if the previous loop and current loop IDs are same or not for getting all issues.
     prev_curr_diff = True
 
-    while prev_curr_diff:
-        query = {
-            "scope": "all",
-            "state": "all",
-            "milestone_title": os.environ['MILE_STONE'],
-            "page": page
-        }
+    # Loop with state 'opened' and 'closed'
+    for status in status_list.split(","):
+        while prev_curr_diff:
+            query = {
+                "scope": "all",
+                "state": status,
+                "milestone_title": os.environ['MILE_STONE'],
+                "page": page
+            }
 
-        response = requests.get(os.environ['TARGET_URL'], headers=headers, params=query)
-        soup = BeautifulSoup(response.text, "html.parser")
-        issue_num_list = soup.find_all("span", attrs={"class": "issuable-reference"})
-        issue_status_list = soup.find_all("span", attrs={"class": "issuable-status"})
-        issue_title_list = soup.find_all("span", attrs={"class": "issue-title-text"})
+            response = requests.get(os.environ['TARGET_URL'], headers=headers, params=query)
 
-        # IDの確認
-        if issue_num_list[0].text.replace("\n", "\t") == prev_num:
-            break
-        else:
-            prev_num = issue_num_list[0].text.replace("\n", "\t")
-            page += 1
+            soup = BeautifulSoup(response.text, "html.parser")
 
-        index = 0
+            issue_num_list = soup.find_all("span", attrs={"class": "issuable-reference"})
+            issue_title_list = soup.find_all("span", attrs={"class": "issue-title-text"})
 
-        print(issue_status_list)
+            # Confirm ID for loop
+            if issue_num_list[0].text.replace("\n", "\t") == prev_num:
+                break
+            else:
+                prev_num = issue_num_list[0].text.replace("\n", "\t")
+                page += 1
 
-        for issue_num in issue_num_list:
-            issue_title = issue_title_list[index]
-            # issue_status = issue_status_list[index]
-            print(issue_num.text.replace("\n", "\t") + 
-                # issue_status.text.replace("·\n", "").replace("\n", "\t") + 
-                issue_title.text.replace("\n", "\t") )
-            index += 1
+            index = 0
+
+            for issue_num in issue_num_list:
+                issue_title = issue_title_list[index]
+                # issue_status = issue_status_list[index]
+                print(issue_num.text.replace("\n", "\t") + 
+                    status + "\t" +
+                    # issue_status.text.replace("·\n", "").replace("\n", "\t") + 
+                    issue_title.text.replace("\n", "\t") )
+                index += 1
 
 
