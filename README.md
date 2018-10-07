@@ -8,6 +8,14 @@ There are 2 patterns.
 2. Execute on your local.
 
 # Prepare
+Sets following contents in serverless.yml
+
+| No | Name | Contents |
+| ---: | :--- | :--- |
+|1|PERSONAL_ACCESS_TOKEN|Personal Access Token generated in GitLab|
+|2|TARGET_URL|GitLab issues URL|
+|3|MILE_STONE|Milestone (optional)|
+
 
 ## For AWS Lambda
 
@@ -21,5 +29,11 @@ After that you can install API Gateway or execute Lambda API on AWS Console.
 
 No need any special environment, needs just Python 3 execute environment.
 
-# Get List
-Listing 
+With sls command, below.
+
+```sh
+$ sls invoke local -f issues_manager
+```
+
+
+

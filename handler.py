@@ -8,19 +8,15 @@ import requests
 from bs4 import BeautifulSoup
 
 def issues_manager(event, context):
-    if 'PERSONAL_ACCESS_TOKEN' in os.environ['PERSONAL_ACCESS_TOKEN'] or os.environ['PERSONAL_ACCESS_TOKEN'] is None:
+    if 'PERSONAL_ACCESS_TOKEN' not in os.environ or os.environ['PERSONAL_ACCESS_TOKEN'] is None:
         # ERROR handling
         print("Please configure PERSONAL_ACCESS_TOKEN.")
         return
-    elif 'TARGET_URL' in os.environ['TARGET_URL'] or os.environ['TARGET_URL'] is None:
+    elif 'TARGET_URL' not in os.environ or os.environ['TARGET_URL'] is None:
         # ERROR handling
         print("Please configure TARGET_URL.")
         return
-    elif 'TARGET_URL' in os.environ['MILE_STONE'] or os.environ['MILE_STONE'] is None:
-        # ERROR handling
-        print("Please configure MILE_STONE.")
-        return
-    elif 'STATUS_LIST' in os.environ['STATUS_LIST'] or os.environ['STATUS_LIST'] is None:
+    elif 'STATUS_LIST' not in os.environ or os.environ['STATUS_LIST'] is None:
         # ERROR handling
         print("Please configure STATUS_LIST.")
         return
@@ -44,10 +40,13 @@ def issues_manager(event, context):
             query = {
                 "scope": "all",
                 "state": status,
-                "milestone_title": os.environ['MILE_STONE'],
+                "milestone_title": os.environ['MILE_STONE'] ,
                 "page": page
             }
 
+            if 'MILE_STONE' not in os.environ or os.environ['MILE_STONE'] is None or os.environ['MILE_STONE'] == "null":
+                query.pop("milestone_title")
+  
             response = requests.get(os.environ['TARGET_URL'], headers=headers, params=query)
 
             soup = BeautifulSoup(response.text, "html.parser")
