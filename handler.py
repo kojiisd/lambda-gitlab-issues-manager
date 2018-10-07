@@ -31,11 +31,12 @@ def issues_manager(event, context):
     page = 1
     prev_num = 0
 
-    #　Check if the previous loop and current loop IDs are same or not for getting all issues.
-    prev_curr_diff = True
 
     # Loop with state 'opened' and 'closed'
-    for status in status_list.split(","):
+    status_list_array = status_list.split(",")
+    for status in status_list_array:
+        #　Check if the previous loop and current loop IDs are same or not for getting all issues.
+        prev_curr_diff = True
         while prev_curr_diff:
             query = {
                 "scope": "all",
@@ -46,7 +47,7 @@ def issues_manager(event, context):
 
             if 'MILE_STONE' not in os.environ or os.environ['MILE_STONE'] is None or os.environ['MILE_STONE'] == "null":
                 query.pop("milestone_title")
-  
+
             response = requests.get(os.environ['TARGET_URL'], headers=headers, params=query)
 
             soup = BeautifulSoup(response.text, "html.parser")
@@ -56,6 +57,9 @@ def issues_manager(event, context):
 
             # Confirm ID for loop
             if issue_num_list[0].text.replace("\n", "\t") == prev_num:
+                prev_curr_diff = False
+                prev_num = 0
+                page = 1
                 break
             else:
                 prev_num = issue_num_list[0].text.replace("\n", "\t")
